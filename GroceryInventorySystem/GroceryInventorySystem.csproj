@@ -9,8 +9,8 @@
   <ItemGroup>
     <Folder Include="NewFolder\" />
     <Folder Include="Services\" />
+    <Folder Include="Views\NewFolder\" />
     <Folder Include="Views\Sales\" />
-    <Folder Include="Views\Products\" />
   </ItemGroup>
 
   <ItemGroup>
