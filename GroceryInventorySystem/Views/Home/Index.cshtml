@@ -33,7 +33,7 @@
         <div class="card dashboard-card bg-success text-white">
             <div class="card-body">
                 <h6 class="card-title">Today's Sales</h6>
-                <h2 class="mb-0">৳ @ViewBag.TodaySales</h2>
+                <h2 class="mb-0">৳ @ViewBag.TodaySales.ToString("F2")</h2>
                 <i class="bi bi-cart-check card-icon"></i>
             </div>
         </div>
@@ -42,7 +42,7 @@
         <div class="card dashboard-card bg-warning text-dark">
             <div class="card-body">
                 <h6 class="card-title">Total Revenue</h6>
-                <h2 class="mb-0">৳ @ViewBag.TotalRevenue</h2>
+                <h2 class="mb-0">৳ @ViewBag.TotalRevenue.ToString("F2")</h2>
                 <i class="bi bi-currency-dollar card-icon"></i>
             </div>
         </div>
@@ -82,13 +82,13 @@
     </div>
 </div>
 
-<!-- Recent Activity -->
+<!-- Recent Transactions -->
 <div class="row">
     <div class="col-12">
         <div class="card dashboard-card">
             <div class="card-header bg-white border-0 pt-3 d-flex justify-content-between align-items-center">
                 <h5 class="mb-0"><i class="bi bi-clock-history me-2"></i>Recent Transactions</h5>
-                <a href="#" class="btn btn-sm btn-primary">View All</a>
+                <a href="/Sales/History" class="btn btn-sm btn-primary">View All</a>
             </div>
             <div class="card-body">
                 <div class="table-responsive">
@@ -104,30 +104,26 @@
                             </tr>
                         </thead>
                         <tbody>
-                            <tr>
-                                <td>#001</td>
-                                <td>Rice (5kg)</td>
-                                <td>2</td>
-                                <td>৳ 650</td>
-                                <td>10:30 AM</td>
-                                <td><span class="badge bg-success">Completed</span></td>
-                            </tr>
-                            <tr>
-                                <td>#002</td>
-                                <td>Vegetable Oil</td>
-                                <td>1</td>
-                                <td>৳ 180</td>
-                                <td>10:15 AM</td>
-                                <td><span class="badge bg-success">Completed</span></td>
-                            </tr>
-                            <tr>
-                                <td>#003</td>
-                                <td>Milk (1L)</td>
-                                <td>5</td>
-                                <td>৳ 400</td>
-                                <td>09:45 AM</td>
-                                <td><span class="badge bg-warning">Pending</span></td>
-                            </tr>
+                            @if (ViewBag.RecentSales != null && ViewBag.RecentSales.Count > 0)
+                            {
+                                @foreach (var sale in ViewBag.RecentSales)
+                                {
+                                    <tr>
+                                        <td>#@sale.Id.ToString("D3")</td>
+                                        <td>@(sale.Product?.Name ?? "Unknown")</td>
+                                        <td>@sale.Quantity</td>
+                                        <td>৳ @sale.TotalPrice.ToString("F2")</td>
+                                        <td>@sale.SaleDate.ToString("hh:mm tt")</td>
+                                        <td><span class="badge bg-success">Completed</span></td>
+                                    </tr>
+                                }
+                            }
+                            else
+                            {
+                                <tr>
+                                    <td colspan="6" class="text-center text-muted py-4">No sales yet. Make your first sale from Sales/POS!</td>
+                                </tr>
+                            }
                         </tbody>
                     </table>
                 </div>
@@ -138,15 +134,15 @@
 
 @section Scripts {
     <script>
-        // Sales Line Chart
+        // Dynamic Sales Line Chart
         const salesCtx = document.getElementById('salesChart').getContext('2d');
         new Chart(salesCtx, {
             type: 'line',
             data: {
-                labels: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
+                labels: @Html.Raw(Json.Serialize(ViewBag.ChartLabels)),
                 datasets: [{
                     label: 'Sales (৳)',
-                    data: [12000, 19000, 15000, 25000, 22000, 30000, 28000],
+                    data: @Html.Raw(Json.Serialize(ViewBag.ChartData)),
                     borderColor: '#0d6efd',
                     backgroundColor: 'rgba(13, 110, 253, 0.1)',
                     fill: true,
@@ -162,15 +158,15 @@
             }
         });
 
-        // Category Pie Chart
+        // Dynamic Category Pie Chart
         const categoryCtx = document.getElementById('categoryChart').getContext('2d');
         new Chart(categoryCtx, {
             type: 'doughnut',
             data: {
-                labels: ['Rice', 'Oil', 'Spices', 'Snacks', 'Others'],
+                labels: @Html.Raw(Json.Serialize(ViewBag.CategoryLabels)),
                 datasets: [{
-                    data: [30, 20, 15, 25, 10],
-                    backgroundColor: ['#0d6efd', '#198754', '#ffc107', '#dc3545', '#6c757d']
+                    data: @Html.Raw(Json.Serialize(ViewBag.CategoryData)),
+                    backgroundColor: ['#0d6efd', '#198754', '#ffc107', '#dc3545', '#6c757d', '#6610f2', '#fd7e14']
                 }]
             },
             options: {
