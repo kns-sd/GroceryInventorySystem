@@ -1,0 +1,182 @@
+﻿@{
+    ViewData["Title"] = "Dashboard";
+}
+
+<!-- AI Low Stock Alert -->
+@if (ViewBag.LowStockCount > 0)
+{
+    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+        <i class="bi bi-exclamation-triangle-fill me-2"></i>
+        <strong>AI Alert!</strong> @ViewBag.LowStockCount items are running low!
+        <ul class="mt-2 mb-0">
+            @foreach (var item in ViewBag.LowStockItems)
+            {
+                <li>@item.Name - Only @item.StockQuantity left! (Min: @item.MinStockLevel)</li>
+            }
+        </ul>
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+}
+
+<!-- Stats Cards -->
+<div class="row g-4 mb-4">
+    <div class="col-xl-3 col-md-6">
+        <div class="card dashboard-card bg-primary text-white">
+            <div class="card-body">
+                <h6 class="card-title">Total Products</h6>
+                <h2 class="mb-0">@ViewBag.TotalProducts</h2>
+                <i class="bi bi-box-seam card-icon"></i>
+            </div>
+        </div>
+    </div>
+    <div class="col-xl-3 col-md-6">
+        <div class="card dashboard-card bg-success text-white">
+            <div class="card-body">
+                <h6 class="card-title">Today's Sales</h6>
+                <h2 class="mb-0">৳ @ViewBag.TodaySales</h2>
+                <i class="bi bi-cart-check card-icon"></i>
+            </div>
+        </div>
+    </div>
+    <div class="col-xl-3 col-md-6">
+        <div class="card dashboard-card bg-warning text-dark">
+            <div class="card-body">
+                <h6 class="card-title">Total Revenue</h6>
+                <h2 class="mb-0">৳ @ViewBag.TotalRevenue</h2>
+                <i class="bi bi-currency-dollar card-icon"></i>
+            </div>
+        </div>
+    </div>
+    <div class="col-xl-3 col-md-6">
+        <div class="card dashboard-card bg-danger text-white">
+            <div class="card-body">
+                <h6 class="card-title">Low Stock Items</h6>
+                <h2 class="mb-0">@ViewBag.LowStockCount</h2>
+                <i class="bi bi-exclamation-triangle card-icon"></i>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Charts Row -->
+<div class="row g-4 mb-4">
+    <div class="col-lg-8">
+        <div class="card dashboard-card">
+            <div class="card-header bg-white border-0 pt-3">
+                <h5 class="mb-0"><i class="bi bi-graph-up me-2"></i>Sales Overview</h5>
+            </div>
+            <div class="card-body">
+                <canvas id="salesChart" height="100"></canvas>
+            </div>
+        </div>
+    </div>
+    <div class="col-lg-4">
+        <div class="card dashboard-card">
+            <div class="card-header bg-white border-0 pt-3">
+                <h5 class="mb-0"><i class="bi bi-pie-chart me-2"></i>Category Distribution</h5>
+            </div>
+            <div class="card-body">
+                <canvas id="categoryChart"></canvas>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Recent Activity -->
+<div class="row">
+    <div class="col-12">
+        <div class="card dashboard-card">
+            <div class="card-header bg-white border-0 pt-3 d-flex justify-content-between align-items-center">
+                <h5 class="mb-0"><i class="bi bi-clock-history me-2"></i>Recent Transactions</h5>
+                <a href="#" class="btn btn-sm btn-primary">View All</a>
+            </div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead class="table-light">
+                            <tr>
+                                <th>ID</th>
+                                <th>Product</th>
+                                <th>Quantity</th>
+                                <th>Amount</th>
+                                <th>Time</th>
+                                <th>Status</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>#001</td>
+                                <td>Rice (5kg)</td>
+                                <td>2</td>
+                                <td>৳ 650</td>
+                                <td>10:30 AM</td>
+                                <td><span class="badge bg-success">Completed</span></td>
+                            </tr>
+                            <tr>
+                                <td>#002</td>
+                                <td>Vegetable Oil</td>
+                                <td>1</td>
+                                <td>৳ 180</td>
+                                <td>10:15 AM</td>
+                                <td><span class="badge bg-success">Completed</span></td>
+                            </tr>
+                            <tr>
+                                <td>#003</td>
+                                <td>Milk (1L)</td>
+                                <td>5</td>
+                                <td>৳ 400</td>
+                                <td>09:45 AM</td>
+                                <td><span class="badge bg-warning">Pending</span></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        // Sales Line Chart
+        const salesCtx = document.getElementById('salesChart').getContext('2d');
+        new Chart(salesCtx, {
+            type: 'line',
+            data: {
+                labels: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
+                datasets: [{
+                    label: 'Sales (৳)',
+                    data: [12000, 19000, 15000, 25000, 22000, 30000, 28000],
+                    borderColor: '#0d6efd',
+                    backgroundColor: 'rgba(13, 110, 253, 0.1)',
+                    fill: true,
+                    tension: 0.4,
+                    pointRadius: 5,
+                    pointBackgroundColor: '#0d6efd'
+                }]
+            },
+            options: {
+                responsive: true,
+                plugins: { legend: { display: false } },
+                scales: { y: { beginAtZero: true } }
+            }
+        });
+
+        // Category Pie Chart
+        const categoryCtx = document.getElementById('categoryChart').getContext('2d');
+        new Chart(categoryCtx, {
+            type: 'doughnut',
+            data: {
+                labels: ['Rice', 'Oil', 'Spices', 'Snacks', 'Others'],
+                datasets: [{
+                    data: [30, 20, 15, 25, 10],
+                    backgroundColor: ['#0d6efd', '#198754', '#ffc107', '#dc3545', '#6c757d']
+                }]
+            },
+            options: {
+                responsive: true,
+                plugins: { legend: { position: 'bottom' } }
+            }
+        });
+    </script>
+}
