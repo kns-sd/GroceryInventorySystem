@@ -12,7 +12,7 @@
 
 <div class="card dashboard-card">
     <div class="card-body">
-        <form asp-action="Edit" method="post">
+        <form asp-action="Edit" method="post" enctype="multipart/form-data">
             <input type="hidden" asp-for="Id" />
             <input type="hidden" asp-for="CreatedAt" />
 
@@ -61,6 +61,24 @@
             <div class="mb-3">
                 <label class="form-label fw-bold">Supplier</label>
                 <input asp-for="Supplier" class="form-control">
+            </div>
+
+            <div class="mb-3">
+                <label class="form-label fw-bold">Current Image</label><br>
+                @if (!string.IsNullOrEmpty(Model.ImageUrl))
+                {
+                    <img src="@Model.ImageUrl" style="width: 150px; height: 150px; object-fit: cover; border-radius: 10px;" class="mb-2" />
+                }
+                else
+                {
+                    <p class="text-muted">No image uploaded</p>
+                }
+            </div>
+
+            <div class="mb-3">
+                <label class="form-label fw-bold">Change Image</label>
+                <input type="file" name="imageFile" class="form-control" accept="image/*">
+                <small class="text-muted">Leave empty to keep current image</small>
             </div>
 
             <div class="d-flex gap-2">

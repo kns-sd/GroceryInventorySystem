@@ -16,36 +16,42 @@
                 background: #1a1a2e;
                 color: white;
             }
-            .sidebar .nav-link {
-                color: rgba(255,255,255,0.8);
-                padding: 12px 20px;
-                transition: all 0.3s;
-            }
-            .sidebar .nav-link:hover, .sidebar .nav-link.active {
-                background: #16213e;
-                color: white;
-                border-left: 4px solid #e94560;
-            }
-            .sidebar .nav-link i {
-                margin-right: 10px;
-            }
+
+                .sidebar .nav-link {
+                    color: rgba(255,255,255,0.8);
+                    padding: 12px 20px;
+                    transition: all 0.3s;
+                }
+
+                    .sidebar .nav-link:hover, .sidebar .nav-link.active {
+                        background: #16213e;
+                        color: white;
+                        border-left: 4px solid #e94560;
+                    }
+
+                    .sidebar .nav-link i {
+                        margin-right: 10px;
+                    }
+
             .main-content {
                 background: #f8f9fa;
                 min-height: 100vh;
             }
+
             .dashboard-card {
                 border: none;
                 border-radius: 15px;
                 box-shadow: 0 4px 15px rgba(0,0,0,0.08);
             }
-            .dashboard-card .card-icon {
-                position: absolute;
-                right: 20px;
-                top: 50%;
-                transform: translateY(-50%);
-                font-size: 3rem;
-                opacity: 0.2;
-            }
+
+                .dashboard-card .card-icon {
+                    position: absolute;
+                    right: 20px;
+                    top: 50%;
+                    transform: translateY(-50%);
+                    font-size: 3rem;
+                    opacity: 0.2;
+                }
     </style>
 </head>
 <body>
@@ -77,12 +83,14 @@
                             </a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link" href="#">
+                            <a class="nav-link @(ViewContext.RouteData.Values["controller"]?.ToString() == "Reports" ? "active" : "")"
+                               asp-controller="Reports" asp-action="Index">
                                 <i class="bi bi-graph-up"></i> Reports
                             </a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link" href="#">
+                            <a class="nav-link @(ViewContext.RouteData.Values["controller"]?.ToString() == "Settings" ? "active" : "")"
+                               asp-controller="Settings" asp-action="Index">
                                 <i class="bi bi-gear"></i> Settings
                             </a>
                         </li>

@@ -14,13 +14,29 @@
         <div class="row g-3" id="productGrid">
             @foreach (var product in Model)
             {
+                var categoryImage = product.Category?.ToLower() switch
+                {
+                    "rice" => "https://images.unsplash.com/photo-1586201375761-83865001e31c?w=300&h=150&fit=crop",
+                    "oil" => "https://images.unsplash.com/photo-1474979266404-7eaacbcd87c5?w=300&h=150&fit=crop",
+                    "dairy" => "https://images.unsplash.com/photo-1563636619-e9143da7973b?w=300&h=150&fit=crop",
+                    "spices" => "https://images.unsplash.com/photo-1596040033229-a9821ebd058d?w=300&h=150&fit=crop",
+                    "snacks" => "https://images.unsplash.com/photo-1621447504864-d8686e12698c?w=300&h=150&fit=crop",
+                    "sugar" => "https://images.unsplash.com/photo-1622483767028-3f66f32aef97?w=300&h=150&fit=crop",
+                    "beverages" => "https://images.unsplash.com/photo-1544145945-f90425340c7e?w=300&h=150&fit=crop",
+                    _ => "https://via.placeholder.com/300x150?text=" + product.Category
+                };
+
                 <div class="col-md-4 col-sm-6 product-card" data-name="@product.Name.ToLower()">
                     <div class="card dashboard-card h-100">
                         <div class="card-body">
+                            <img src="@(string.IsNullOrEmpty(product.ImageUrl) ? categoryImage : product.ImageUrl)"
+                                 style="width: 100%; height: 150px; object-fit: cover; border-radius: 10px; margin-bottom: 10px;"
+                                 onerror="this.src='https://via.placeholder.com/300x150?text=No+Image'" />
+
                             <h6 class="fw-bold text-truncate">@product.Name</h6>
                             <span class="badge bg-info mb-2">@product.Category</span>
                             <p class="mb-1 text-muted small">Stock: <span class="stock-@product.Id">@product.StockQuantity</span></p>
-                            <h5 class="text-primary">৳ @product.Price</h5>
+                            <h5 class="text-primary">৳ @product.Price.ToString("F2")</h5>
                             <button class="btn btn-sm btn-primary w-100 mt-2" onclick="addToCart(@product.Id, '@product.Name', @product.Price, @product.StockQuantity)">
                                 <i class="bi bi-plus-lg"></i> Add to Cart
                             </button>
@@ -131,7 +147,7 @@
                     <div class="d-flex justify-content-between align-items-center mb-2 p-2 bg-light rounded">
                         <div>
                             <small class="fw-bold d-block">${item.name}</small>
-                            <small class="text-muted">৳ ${item.price} x ${item.quantity}</small>
+                            <small class="text-muted">৳ ${item.price.toFixed(2)} x ${item.quantity}</small>
                         </div>
                         <div class="d-flex align-items-center gap-2">
                             <button class="btn btn-sm btn-outline-secondary" onclick="updateQuantity(${item.productId}, -1)">-</button>

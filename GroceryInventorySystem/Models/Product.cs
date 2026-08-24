@@ -26,6 +26,9 @@ namespace GroceryInventorySystem.Models
         [Display(Name = "Supplier")]
         public string Supplier { get; set; }
 
+        [Display(Name = "Product Image")]
+        public string? ImageUrl { get; set; }
+
         public DateTime CreatedAt { get; set; } = DateTime.Now;
     }
 }
