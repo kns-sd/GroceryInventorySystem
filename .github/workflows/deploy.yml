@@ -28,9 +28,11 @@ jobs:
         run: dotnet publish ./GroceryInventorySystem/GroceryInventorySystem.csproj --configuration Release --output ./publish
 
       - name: Deploy to MonsterASP
-        uses: rasmusbuchholdt/simply-web-deploy@2.1.0
-        with:
-          website-name: ${{ secrets.WEBSITE_NAME }}
-          server-computer-name: ${{ secrets.SERVER_COMPUTER_NAME }}
-          server-username: ${{ secrets.SERVER_USERNAME }}
-          server-password: ${{ secrets.SERVER_PASSWORD }}
+        shell: powershell
+        run: |
+          & "C:\Program Files\IIS\Microsoft Web Deploy V3\msdeploy.exe" `
+            -verb:sync `
+            -source:contentPath="$env:GITHUB_WORKSPACE\publish" `
+            -dest:auto,computerName="https://${{ secrets.SERVER_COMPUTER_NAME }}:8172/msdeploy.axd?site=${{ secrets.WEBSITE_NAME }}",userName="${{ secrets.SERVER_USERNAME }}",password="${{ secrets.SERVER_PASSWORD }}",authType="Basic" `
+            -enableRule:AppOffline `
+            -allowUntrusted
