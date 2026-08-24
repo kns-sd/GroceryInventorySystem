@@ -1,0 +1,198 @@
+﻿@{
+    ViewData["Title"] = "Dashboard";
+}
+
+<!-- AI Low Stock Alert -->
+@if (ViewBag.LowStockCount > 0)
+{
+    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+        <i class="bi bi-exclamation-triangle-fill me-2"></i>
+        <strong>AI Alert!</strong> @ViewBag.LowStockCount items are running low!
+        <ul class="mt-2 mb-0">
+            @foreach (var item in ViewBag.LowStockItems)
+            {
+                <li>@item.Name - Only @item.StockQuantity left! (Min: @item.MinStockLevel)</li>
+            }
+        </ul>
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+}
+
+<!-- Stats Cards -->
+<div class="row g-4 mb-4">
+    <div class="col-xl-3 col-md-6">
+        <div class="card dashboard-card bg-primary text-white">
+            <div class="card-body">
+                <h6 class="card-title">Total Products</h6>
+                <h2 class="mb-0">@ViewBag.TotalProducts</h2>
+                <i class="bi bi-box-seam card-icon"></i>
+            </div>
+        </div>
+    </div>
+    <div class="col-xl-3 col-md-6">
+        <div class="card dashboard-card bg-success text-white">
+            <div class="card-body">
+                <h6 class="card-title">Today's Sales</h6>
+                <h2 class="mb-0">৳ @ViewBag.TodaySales.ToString("F2")</h2>
+                <i class="bi bi-cart-check card-icon"></i>
+            </div>
+        </div>
+    </div>
+    <div class="col-xl-3 col-md-6">
+        <div class="card dashboard-card bg-warning text-dark">
+            <div class="card-body">
+                <h6 class="card-title">Total Revenue</h6>
+                <h2 class="mb-0">৳ @ViewBag.TotalRevenue.ToString("F2")</h2>
+                <i class="bi bi-currency-dollar card-icon"></i>
+            </div>
+        </div>
+    </div>
+    <div class="col-xl-3 col-md-6">
+        <div class="card dashboard-card bg-danger text-white">
+            <div class="card-body">
+                <h6 class="card-title">Low Stock Items</h6>
+                <h2 class="mb-0">@ViewBag.LowStockCount</h2>
+                <i class="bi bi-exclamation-triangle card-icon"></i>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Charts Row -->
+<div class="row g-4 mb-4">
+    <div class="col-lg-8">
+        <div class="card dashboard-card">
+            <div class="card-header bg-white border-0 pt-3 d-flex justify-content-between align-items-center">
+                <h5 class="mb-0"><i class="bi bi-graph-up me-2"></i>Sales Overview</h5>
+
+                <!-- Time Range Selector -->
+                <div class="btn-group" role="group">
+                    <a href="/Home/Index?days=7" class="btn btn-sm @(ViewBag.SelectedDays == 7 ? "btn-primary" : "btn-outline-primary")">
+                        Last 7 Days
+                    </a>
+                    <a href="/Home/Index?days=30" class="btn btn-sm @(ViewBag.SelectedDays == 30 ? "btn-primary" : "btn-outline-primary")">
+                        Last 30 Days
+                    </a>
+                </div>
+            </div>
+            <div class="card-body">
+                <canvas id="salesChart" height="100"></canvas>
+            </div>
+        </div>
+    </div>
+    <div class="col-lg-4">
+        <div class="card dashboard-card">
+            <div class="card-header bg-white border-0 pt-3">
+                <h5 class="mb-0"><i class="bi bi-pie-chart me-2"></i>Category Distribution</h5>
+            </div>
+            <div class="card-body">
+                <canvas id="categoryChart"></canvas>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Recent Transactions -->
+<div class="row">
+    <div class="col-12">
+        <div class="card dashboard-card">
+            <div class="card-header bg-white border-0 pt-3 d-flex justify-content-between align-items-center">
+                <h5 class="mb-0"><i class="bi bi-clock-history me-2"></i>Recent Transactions</h5>
+                <a href="/Sales/History" class="btn btn-sm btn-primary">View All</a>
+            </div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead class="table-light">
+                            <tr>
+                                <th>ID</th>
+                                <th>Product</th>
+                                <th>Quantity</th>
+                                <th>Amount</th>
+                                <th>Time</th>
+                                <th>Status</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @if (ViewBag.RecentSales != null && ViewBag.RecentSales.Count > 0)
+                            {
+                                @foreach (var sale in ViewBag.RecentSales)
+                                {
+                                    <tr>
+                                        <td>#@sale.Id.ToString("D3")</td>
+                                        <td>@(sale.Product?.Name ?? "Unknown")</td>
+                                        <td>@sale.Quantity</td>
+                                        <td>৳ @sale.TotalPrice.ToString("F2")</td>
+                                        <td>@sale.SaleDate.ToString("hh:mm tt")</td>
+                                        <td><span class="badge bg-success">Completed</span></td>
+                                    </tr>
+                                }
+                            }
+                            else
+                            {
+                                <tr>
+                                    <td colspan="6" class="text-center text-muted py-4">No sales yet. Make your first sale from Sales/POS!</td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        // Dynamic Sales Line Chart
+        const salesCtx = document.getElementById('salesChart').getContext('2d');
+        new Chart(salesCtx, {
+            type: 'line',
+            data: {
+                labels: @Html.Raw(Json.Serialize(ViewBag.ChartLabels)),
+                datasets: [{
+                    label: 'Sales (৳)',
+                    data: @Html.Raw(Json.Serialize(ViewBag.ChartData)),
+                    borderColor: '#0d6efd',
+                    backgroundColor: 'rgba(13, 110, 253, 0.1)',
+                    fill: true,
+                    tension: 0.4,
+                    pointRadius: 5,
+                    pointBackgroundColor: '#0d6efd'
+                }]
+            },
+            options: {
+                responsive: true,
+                plugins: {
+                    legend: { display: false },
+                    tooltip: {
+                        callbacks: {
+                            title: function(context) {
+                                const dates = @Html.Raw(Json.Serialize(ViewBag.ChartFullDates));
+                                return dates[context[0].dataIndex];
+                            }
+                        }
+                    }
+                },
+                scales: { y: { beginAtZero: true } }
+            }
+        });
+
+        // Dynamic Category Pie Chart
+        const categoryCtx = document.getElementById('categoryChart').getContext('2d');
+        new Chart(categoryCtx, {
+            type: 'doughnut',
+            data: {
+                labels: @Html.Raw(Json.Serialize(ViewBag.CategoryLabels)),
+                datasets: [{
+                    data: @Html.Raw(Json.Serialize(ViewBag.CategoryData)),
+                    backgroundColor: ['#0d6efd', '#198754', '#ffc107', '#dc3545', '#6c757d', '#6610f2', '#fd7e14']
+                }]
+            },
+            options: {
+                responsive: true,
+                plugins: { legend: { position: 'bottom' } }
+            }
+        });
+    </script>
+}
